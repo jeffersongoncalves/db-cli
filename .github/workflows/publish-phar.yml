@@ -47,7 +47,7 @@ jobs:
         run: php db app:build db.phar --build-version=${{ steps.tag.outputs.tag }} -v
 
       - name: Upload the PHAR artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: db.phar
           path: builds/db.phar
