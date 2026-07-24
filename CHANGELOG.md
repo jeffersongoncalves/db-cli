@@ -2,6 +2,10 @@
 
 All notable changes to `db-cli` will be documented in this file.
 
+## 0.2.1 - 2026-07-24
+
+Release 0.2.1
+
 ## 0.2.0 - 2026-07-24
 
 ### What's Changed
