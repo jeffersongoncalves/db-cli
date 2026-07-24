@@ -23,7 +23,7 @@ class ListCommand extends Command
                 'name' => $connection->name,
                 'driver' => $connection->driver,
                 'host' => $connection->host ?? '-',
-                'database' => $connection->database,
+                'database' => $connection->database !== '' ? $connection->database : '-',
             ];
         }
 

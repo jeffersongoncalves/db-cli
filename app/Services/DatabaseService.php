@@ -97,9 +97,11 @@ class DatabaseService
 
     private function dsn(Connection $connection): string
     {
+        $dbname = $connection->database !== '' ? 'dbname='.$connection->database.';' : '';
+
         return match ($connection->driver) {
-            'mysql' => sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $connection->host, $connection->port ?? 3306, $connection->database),
-            'pgsql' => sprintf('pgsql:host=%s;port=%d;dbname=%s', $connection->host, $connection->port ?? 5432, $connection->database),
+            'mysql' => sprintf('mysql:host=%s;port=%d;%scharset=utf8mb4', $connection->host, $connection->port ?? 3306, $dbname),
+            'pgsql' => sprintf('pgsql:host=%s;port=%d;%s', $connection->host, $connection->port ?? 5432, $dbname),
             'sqlite' => 'sqlite:'.$connection->database,
             default => throw new InvalidArgumentException("Unsupported driver: {$connection->driver}"),
         };

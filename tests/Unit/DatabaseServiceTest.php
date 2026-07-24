@@ -50,3 +50,17 @@ it('samples distinct values of a column', function () {
 it('rejects invalid table identifiers', function () {
     $this->service->describe($this->pdo, 'sqlite', 'users; DROP TABLE users');
 })->throws(InvalidArgumentException::class);
+
+it('builds a mysql dsn without dbname when the connection has no database', function () {
+    $connection = new Connection(name: 'test', driver: 'mysql', host: '127.0.0.1', port: 3306, database: '');
+    $dsn = (new ReflectionMethod(DatabaseService::class, 'dsn'))->invoke($this->service, $connection);
+
+    expect($dsn)->toBe('mysql:host=127.0.0.1;port=3306;charset=utf8mb4');
+});
+
+it('builds a mysql dsn with dbname when a database is set', function () {
+    $connection = new Connection(name: 'test', driver: 'mysql', host: '127.0.0.1', port: 3306, database: 'shop');
+    $dsn = (new ReflectionMethod(DatabaseService::class, 'dsn'))->invoke($this->service, $connection);
+
+    expect($dsn)->toBe('mysql:host=127.0.0.1;port=3306;dbname=shop;charset=utf8mb4');
+});

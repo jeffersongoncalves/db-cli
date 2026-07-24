@@ -35,3 +35,21 @@ it('removes a connection profile', function () {
         ->and($connections->forget('alfa'))->toBeFalse()
         ->and($connections->get('alfa'))->toBeNull();
 });
+
+it('saves and reloads a connection profile without a database', function () {
+    $connections = new ConnectionService;
+    $connections->save(new Connection(name: 'server', driver: 'mysql', host: '127.0.0.1', port: 3306, username: 'root'));
+
+    $reloaded = (new ConnectionService)->getOrFail('server');
+
+    expect($reloaded->database)->toBe('');
+});
+
+it('derives a connection targeting a different database on the same server', function () {
+    $server = new Connection(name: 'server', driver: 'mysql', host: '127.0.0.1', port: 3306, username: 'root');
+    $shop = $server->withDatabase('shop');
+
+    expect($shop->database)->toBe('shop')
+        ->and($shop->host)->toBe($server->host)
+        ->and($shop->username)->toBe($server->username);
+});

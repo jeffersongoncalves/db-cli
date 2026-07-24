@@ -11,13 +11,20 @@ class DescribeCommand extends Command
 {
     use FormatsOutput;
 
-    protected $signature = 'describe {connection : Saved connection profile name} {table : Table name} {--format=table : table|json|csv}';
+    protected $signature = 'describe {connection : Saved connection profile name} {table : Table name}
+        {--database= : Override the profile\'s database (same server, different database)}
+        {--format=table : table|json|csv}';
 
     protected $description = 'Show columns of a table (name, type, nullable, key, default)';
 
     public function handle(ConnectionService $connections, DatabaseService $database): int
     {
         $connection = $connections->getOrFail((string) $this->argument('connection'));
+
+        if ($override = $this->option('database')) {
+            $connection = $connection->withDatabase((string) $override);
+        }
+
         $pdo = $database->connect($connection);
 
         $rows = $database->describe($pdo, $connection->driver, (string) $this->argument('table'));

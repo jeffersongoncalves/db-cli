@@ -12,13 +12,21 @@ class QueryCommand extends Command
 {
     use FormatsOutput;
 
-    protected $signature = 'query {connection : Saved connection profile name} {sql : Read-only SQL statement} {--limit=100 : Row cap appended when the query has no LIMIT} {--format=table : table|json|csv}';
+    protected $signature = 'query {connection : Saved connection profile name} {sql : Read-only SQL statement}
+        {--database= : Override the profile\'s database (same server, different database)}
+        {--limit=100 : Row cap appended when the query has no LIMIT}
+        {--format=table : table|json|csv}';
 
     protected $description = 'Run a read-only SQL statement (SELECT/SHOW/DESCRIBE/EXPLAIN/WITH/PRAGMA only)';
 
     public function handle(ConnectionService $connections, DatabaseService $database): int
     {
         $connection = $connections->getOrFail((string) $this->argument('connection'));
+
+        if ($override = $this->option('database')) {
+            $connection = $connection->withDatabase((string) $override);
+        }
+
         $pdo = $database->connect($connection);
 
         try {

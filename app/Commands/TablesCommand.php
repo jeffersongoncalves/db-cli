@@ -11,13 +11,20 @@ class TablesCommand extends Command
 {
     use FormatsOutput;
 
-    protected $signature = 'tables {connection : Saved connection profile name} {--format=table : table|json|csv}';
+    protected $signature = 'tables {connection : Saved connection profile name}
+        {--database= : Override the profile\'s database (same server, different database)}
+        {--format=table : table|json|csv}';
 
     protected $description = 'List tables in a database';
 
     public function handle(ConnectionService $connections, DatabaseService $database): int
     {
         $connection = $connections->getOrFail((string) $this->argument('connection'));
+
+        if ($override = $this->option('database')) {
+            $connection = $connection->withDatabase((string) $override);
+        }
+
         $pdo = $database->connect($connection);
 
         $rows = array_map(

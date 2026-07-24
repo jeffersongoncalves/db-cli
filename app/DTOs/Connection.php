@@ -14,6 +14,19 @@ class Connection
         public readonly ?string $password = null,
     ) {}
 
+    public function withDatabase(string $database): self
+    {
+        return new self(
+            name: $this->name,
+            driver: $this->driver,
+            host: $this->host,
+            port: $this->port,
+            database: $database,
+            username: $this->username,
+            password: $this->password,
+        );
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */

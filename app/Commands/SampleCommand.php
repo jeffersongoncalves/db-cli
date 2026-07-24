@@ -12,6 +12,7 @@ class SampleCommand extends Command
     use FormatsOutput;
 
     protected $signature = 'sample {connection : Saved connection profile name} {table : Table name}
+        {--database= : Override the profile\'s database (same server, different database)}
         {--column= : Limit to one column (default: all columns)}
         {--distinct : Return distinct values (requires --column)}
         {--limit=20 : Row cap}
@@ -22,6 +23,11 @@ class SampleCommand extends Command
     public function handle(ConnectionService $connections, DatabaseService $database): int
     {
         $connection = $connections->getOrFail((string) $this->argument('connection'));
+
+        if ($override = $this->option('database')) {
+            $connection = $connection->withDatabase((string) $override);
+        }
+
         $pdo = $database->connect($connection);
 
         $column = $this->option('column');
