@@ -39,6 +39,12 @@ composer install
 
 ## Usage
 
+### Update
+
+```bash
+db self-update
+```
+
 ### Connection profiles
 
 Profiles are saved to `~/.db-cli/config.json` (mode `0600`).

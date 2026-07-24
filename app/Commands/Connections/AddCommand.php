@@ -12,7 +12,14 @@ use function Laravel\Prompts\text;
 
 class AddCommand extends Command
 {
-    protected $signature = 'connections:add {name? : Profile name (e.g. "alfa")}';
+    protected $signature = 'connections:add
+        {name? : Profile name (e.g. "alfa")}
+        {--driver= : mysql, pgsql or sqlite}
+        {--host= : Database host}
+        {--port= : Database port}
+        {--database= : Database name or, for sqlite, the file path}
+        {--username= : Database username}
+        {--password= : Database password}';
 
     protected $description = 'Save a named database connection profile';
 
@@ -20,24 +27,30 @@ class AddCommand extends Command
     {
         $name = $this->argument('name') ?: text(label: 'Profile name', placeholder: 'alfa', required: true);
 
-        $driver = select(
+        $driver = $this->option('driver') ?: select(
             label: 'Driver',
             options: ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'],
             default: 'mysql',
         );
 
+        if (! in_array($driver, ['mysql', 'pgsql', 'sqlite'], true)) {
+            $this->components->error("Invalid driver \"{$driver}\". Use mysql, pgsql or sqlite.");
+
+            return self::FAILURE;
+        }
+
         if ($driver === 'sqlite') {
-            $database = text(label: 'Database file path', required: true);
+            $database = $this->option('database') ?: text(label: 'Database file path', required: true);
             $host = null;
             $port = null;
             $username = null;
             $password = null;
         } else {
-            $host = text(label: 'Host', default: '127.0.0.1', required: true);
-            $port = (int) text(label: 'Port', default: $driver === 'mysql' ? '3306' : '5432', required: true);
-            $database = text(label: 'Database name', required: true);
-            $username = text(label: 'Username', default: 'root');
-            $password = password(label: 'Password');
+            $host = $this->option('host') ?: text(label: 'Host', default: '127.0.0.1', required: true);
+            $port = (int) ($this->option('port') ?: text(label: 'Port', default: $driver === 'mysql' ? '3306' : '5432', required: true));
+            $database = $this->option('database') ?: text(label: 'Database name', required: true);
+            $username = $this->option('username') ?: text(label: 'Username', default: 'root');
+            $password = $this->option('password') ?: password(label: 'Password');
         }
 
         $connections->save(new Connection(
