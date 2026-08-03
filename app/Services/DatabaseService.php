@@ -95,6 +95,33 @@ class DatabaseService
         return $pdo->query($sql)->fetchAll();
     }
 
+    /**
+     * Runs a read-only SQL statement `$runs` times and returns timing
+     * samples in milliseconds. No LIMIT is injected (unlike query()) since
+     * benchmarking is meant to time the exact statement given.
+     *
+     * @return array{times: list<float>, rows: int}
+     */
+    public function benchmark(PDO $pdo, string $sql, int $runs, int $warmup = 0): array
+    {
+        $sql = $this->guardReadOnly($sql);
+
+        for ($i = 0; $i < $warmup; $i++) {
+            $pdo->query($sql)->fetchAll();
+        }
+
+        $times = [];
+        $rows = 0;
+
+        for ($i = 0; $i < $runs; $i++) {
+            $start = hrtime(true);
+            $rows = count($pdo->query($sql)->fetchAll());
+            $times[] = (hrtime(true) - $start) / 1_000_000;
+        }
+
+        return ['times' => $times, 'rows' => $rows];
+    }
+
     private function dsn(Connection $connection): string
     {
         $dbname = $connection->database !== '' ? 'dbname='.$connection->database.';' : '';

@@ -76,6 +76,19 @@ db query alfa "select * from orders" --limit=50 --format=json
 query doesn't already have one — this CLI is meant for read-only exploration,
 including against production databases.
 
+### Benchmark a query
+
+```bash
+db benchmark alfa "select * from orders where status = 'open'" --runs=20
+db benchmark alfa --file=queries.sql --runs=20 --warmup=2 --format=json
+```
+
+Runs the statement `--runs` times (plus `--warmup` discarded runs to prime
+caches) and reports min/avg/median/max in milliseconds, plus the row count.
+`--file` accepts a `.sql` file with one or more `;`-terminated statements;
+a `-- label` comment on a statement names it in the output, otherwise
+statements are labeled `q1`, `q2`, ... Same read-only restriction as `query`.
+
 ### Output formats
 
 Every read command accepts `--format=table|json|csv` (default `table`).

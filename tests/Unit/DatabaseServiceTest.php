@@ -51,6 +51,18 @@ it('rejects invalid table identifiers', function () {
     $this->service->describe($this->pdo, 'sqlite', 'users; DROP TABLE users');
 })->throws(InvalidArgumentException::class);
 
+it('times a read-only statement over n runs', function () {
+    $sample = $this->service->benchmark($this->pdo, 'SELECT * FROM users', runs: 3, warmup: 1);
+
+    expect($sample['times'])->toHaveCount(3)
+        ->and($sample['rows'])->toBe(3)
+        ->and($sample['times'])->each->toBeFloat();
+});
+
+it('rejects write statements in benchmark', function () {
+    $this->service->benchmark($this->pdo, "UPDATE users SET name = 'x'", runs: 1);
+})->throws(UnsafeQueryException::class);
+
 it('builds a mysql dsn without dbname when the connection has no database', function () {
     $connection = new Connection(name: 'test', driver: 'mysql', host: '127.0.0.1', port: 3306, database: '');
     $dsn = (new ReflectionMethod(DatabaseService::class, 'dsn'))->invoke($this->service, $connection);
