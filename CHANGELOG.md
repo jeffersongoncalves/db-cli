@@ -1,33 +1,77 @@
 # Changelog
 
-All notable changes to `db-cli` will be documented in this file.
+All notable changes to this project will be documented in this file.
 
-## 0.2.3 - 2026-08-03
+## [0.2.4] - 2026-08-25
 
-Release 0.2.3
+### Bug Fixes
 
-## 0.2.2 - 2026-07-24
+- **deps:** Update guzzlehttp/guzzle to patch security advisories
 
-Release 0.2.2
+### CI/CD
 
-## 0.2.1 - 2026-07-24
+- **release:** Generate CHANGELOG.md and release notes with git-cliff
 
-Release 0.2.1
+### Documentation
 
-## 0.2.0 - 2026-07-24
+- Clarify connection profile is a positional argument, not a flag
 
-### What's Changed
+### Miscellaneous Tasks
 
-* Bump actions/cache from 5 to 6 by @dependabot[bot] in https://github.com/jeffersongoncalves/db-cli/pull/1
-* Bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/jeffersongoncalves/db-cli/pull/3
-* Bump actions/upload-artifact from 6 to 7 by @dependabot[bot] in https://github.com/jeffersongoncalves/db-cli/pull/2
+- Normalize line endings via .gitattributes
 
-### New Contributors
+## [0.2.3] - 2026-08-03
 
-* @dependabot[bot] made their first contribution in https://github.com/jeffersongoncalves/db-cli/pull/1
+### CI/CD
 
-**Full Changelog**: https://github.com/jeffersongoncalves/db-cli/compare/0.1.0...0.2.0
+- Pin actions to commit SHA, add dependabot cooldown/composer, trim dist archive
 
-## 0.1.0 - 2026-07-21
+### Dependencies
 
-**Full Changelog**: https://github.com/jeffersongoncalves/db-cli/commits/0.1.0
+- **deps:** Bump shivammathur/setup-php
+
+### Features
+
+- Add benchmark command to time read-only queries
+
+## [0.2.2] - 2026-07-24
+
+### Features
+
+- Allow database-less connections and per-command database override
+
+## [0.2.1] - 2026-07-24
+
+### CI/CD
+
+- Replace split build/changelog/publish-phar workflows with a single release job
+
+## [0.2.0] - 2026-07-24
+
+### Features
+
+- Non-interactive connection flags, self-update, AGENTS.md
+
+## [0.1.0] - 2026-07-21
+
+### Bug Fixes
+
+- Add missing phpunit.xml.dist for pest --parallel
+- Drop empty Feature testsuite from phpunit.xml.dist
+
+### Miscellaneous Tasks
+
+- Add FUNDING.yml
+
+### Other
+
+- Initial commit - db-cli
+
+CLI to inspect and query relational databases (MySQL, PostgreSQL, SQLite)
+through named connection profiles, with a read-only query guard and
+table/json/csv output, built for pairing with an LLM doing schema
+exploration.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+
+
