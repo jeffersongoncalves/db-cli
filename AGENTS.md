@@ -5,6 +5,26 @@ non-interactive-capable — pass all flags and no prompts fire.
 
 Binary: `db` (or `php db` from a source checkout).
 
+## Common mistake — connection is NOT a flag
+
+`connection` and `table`/`sql` are **positional arguments**, always in this
+order: `db COMMAND CONNECTION [TABLE|SQL] [--options]`.
+
+There is **no** `--connection=` option on any command. This fails every time:
+
+```bash
+db describe orders --connection=alfa   # WRONG — "table" arg missing, --connection unknown
+```
+
+Correct form — connection name comes first, positionally:
+
+```bash
+db describe alfa orders                # RIGHT — connection, then table
+```
+
+Applies to `tables`, `describe`, `sample`, `query`, `benchmark` alike:
+`db describe CONNECTION TABLE`, `db query CONNECTION "SELECT ..."`, etc.
+
 ## Connection profiles
 
 Profiles live in `~/.db-cli/config.json` (mode `0600`), keyed by name.
