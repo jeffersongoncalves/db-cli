@@ -45,6 +45,28 @@ it('saves and reloads a connection profile without a database', function () {
     expect($reloaded->database)->toBe('');
 });
 
+it('saves and reloads a connection profile with an SSH tunnel', function () {
+    $connections = new ConnectionService;
+    $connections->save(new Connection(
+        name: 'bastion',
+        driver: 'pgsql',
+        host: 'db.internal',
+        port: 5432,
+        username: 'app',
+        sshHost: 'bastion.example.com',
+        sshPort: 2222,
+        sshUsername: 'deploy',
+        sshPrivateKey: '/home/me/.ssh/id_ed25519',
+    ));
+
+    $reloaded = (new ConnectionService)->getOrFail('bastion');
+
+    expect($reloaded->sshHost)->toBe('bastion.example.com')
+        ->and($reloaded->sshPort)->toBe(2222)
+        ->and($reloaded->sshUsername)->toBe('deploy')
+        ->and($reloaded->sshPrivateKey)->toBe('/home/me/.ssh/id_ed25519');
+});
+
 it('derives a connection targeting a different database on the same server', function () {
     $server = new Connection(name: 'server', driver: 'mysql', host: '127.0.0.1', port: 3306, username: 'root');
     $shop = $server->withDatabase('shop');

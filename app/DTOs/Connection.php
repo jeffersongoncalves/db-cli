@@ -12,6 +12,10 @@ class Connection
         public readonly string $database = '',
         public readonly ?string $username = null,
         public readonly ?string $password = null,
+        public readonly ?string $sshHost = null,
+        public readonly ?int $sshPort = null,
+        public readonly ?string $sshUsername = null,
+        public readonly ?string $sshPrivateKey = null,
     ) {}
 
     public function withDatabase(string $database): self
@@ -24,6 +28,31 @@ class Connection
             database: $database,
             username: $this->username,
             password: $this->password,
+            sshHost: $this->sshHost,
+            sshPort: $this->sshPort,
+            sshUsername: $this->sshUsername,
+            sshPrivateKey: $this->sshPrivateKey,
+        );
+    }
+
+    /**
+     * Points the connection at a local port instead of its real host, used
+     * once an SSH tunnel has forwarded that port to $this->host:$this->port.
+     */
+    public function withTunnel(int $localPort): self
+    {
+        return new self(
+            name: $this->name,
+            driver: $this->driver,
+            host: '127.0.0.1',
+            port: $localPort,
+            database: $this->database,
+            username: $this->username,
+            password: $this->password,
+            sshHost: $this->sshHost,
+            sshPort: $this->sshPort,
+            sshUsername: $this->sshUsername,
+            sshPrivateKey: $this->sshPrivateKey,
         );
     }
 
@@ -40,6 +69,10 @@ class Connection
             database: (string) ($data['database'] ?? ''),
             username: isset($data['username']) ? (string) $data['username'] : null,
             password: isset($data['password']) ? (string) $data['password'] : null,
+            sshHost: isset($data['ssh_host']) ? (string) $data['ssh_host'] : null,
+            sshPort: isset($data['ssh_port']) ? (int) $data['ssh_port'] : null,
+            sshUsername: isset($data['ssh_username']) ? (string) $data['ssh_username'] : null,
+            sshPrivateKey: isset($data['ssh_private_key']) ? (string) $data['ssh_private_key'] : null,
         );
     }
 
@@ -55,6 +88,10 @@ class Connection
             'database' => $this->database,
             'username' => $this->username,
             'password' => $this->password,
+            'ssh_host' => $this->sshHost,
+            'ssh_port' => $this->sshPort,
+            'ssh_username' => $this->sshUsername,
+            'ssh_private_key' => $this->sshPrivateKey,
         ];
     }
 }

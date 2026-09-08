@@ -17,12 +17,18 @@ class DatabaseService
 
     private const IDENTIFIER_PATTERN = '/^[A-Za-z_][A-Za-z0-9_]*$/';
 
+    public function __construct(private readonly SshTunnelService $tunnels = new SshTunnelService) {}
+
     public function connect(Connection $connection): PDO
     {
+        $target = $connection->sshHost !== null
+            ? $connection->withTunnel($this->tunnels->open($connection))
+            : $connection;
+
         return new PDO(
-            $this->dsn($connection),
-            $connection->username,
-            $connection->password,
+            $this->dsn($target),
+            $target->username,
+            $target->password,
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
         );
     }

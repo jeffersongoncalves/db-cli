@@ -24,10 +24,11 @@ class ListCommand extends Command
                 'driver' => $connection->driver,
                 'host' => $connection->host ?? '-',
                 'database' => $connection->database !== '' ? $connection->database : '-',
+                'ssh' => $connection->sshHost ?? '-',
             ];
         }
 
-        $this->renderTable(['name', 'driver', 'host', 'database'], $rows);
+        $this->renderTable(['name', 'driver', 'host', 'database', 'ssh'], $rows);
 
         return self::SUCCESS;
     }

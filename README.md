@@ -64,6 +64,20 @@ db connections:list
 db connections:remove alfa
 ```
 
+To connect through an SSH bastion (mysql/pgsql only), answer yes to
+"Connect through an SSH tunnel?" during `connections:add`, or pass the
+`--ssh-host`/`--ssh-port`/`--ssh-username`/`--ssh-private-key` options.
+`host`/`port` stay the database's real address as seen from the bastion;
+the CLI opens a local port forward through the system `ssh` client (so your
+`~/.ssh/config`, agent and keys apply as usual) and tears it down when the
+command exits. Requires an `ssh` client on `PATH`.
+
+```bash
+db connections:add prod --driver=pgsql --host=db.internal --port=5432 \
+    --username=app --ssh-host=bastion.example.com --ssh-username=deploy \
+    --ssh-private-key=~/.ssh/id_ed25519
+```
+
 ### Explore a database
 
 ```bash
