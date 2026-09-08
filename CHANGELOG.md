@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2026-09-08
+
+### Documentation
+
+- Add Buy Me a Coffee sponsor link
+- Standardize README section structure
+
+### Features
+
+- Add SSH tunnel support for database connections
+
+### Miscellaneous Tasks
+
+- Add GitHub Sponsors to FUNDING.yml
+
 ## [0.2.4] - 2026-08-25
 
 ### Bug Fixes
