@@ -73,7 +73,7 @@ the CLI opens a local port forward through the system `ssh` client (so your
 command exits. Requires an `ssh` client on `PATH`.
 
 ```bash
-db connections:add prod --driver=pgsql --host=db.internal --port=5432 \
+db connections:add prod --driver=pgsql --host=127.0.0.1 --port=5432 \
     --username=app --ssh-host=bastion.example.com --ssh-username=deploy \
     --ssh-private-key=~/.ssh/id_ed25519
 ```
