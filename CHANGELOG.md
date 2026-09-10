@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-09-10
+
+### Dependencies
+
+- **deps:** Bump orhun/git-cliff-action from 4.8.0 to 4.9.0
+
+### Documentation
+
+- Use 127.0.0.1 in SSH tunnel example host
+
 ## [0.2.6] - 2026-09-08
 
 ### Bug Fixes
