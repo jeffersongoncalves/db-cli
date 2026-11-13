@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-11-13
+
+### Features
+
+- Resolve Docker container IP over SSH for tunneled connections
+
 ## [1.1.0] - 2026-11-04
 
 ### CI/CD
