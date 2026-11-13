@@ -19,9 +19,14 @@ class SshTunnelService
      */
     public function open(Connection $connection): int
     {
+        // Resolved on every connect: a container's IP changes whenever it is recreated.
+        $targetHost = $connection->dockerContainer !== null
+            ? $this->resolveContainerIp($connection)
+            : null;
+
         $localPort = $this->freeLocalPort();
 
-        $process = new Process($this->command($connection, $localPort));
+        $process = new Process($this->command($connection, $localPort, $targetHost));
         $process->setTimeout(null);
         $process->start();
 
@@ -38,19 +43,71 @@ class SshTunnelService
 
     /**
      * Builds the `ssh -L ...` argv for forwarding $localPort to the
-     * connection's real host:port through its SSH bastion.
+     * connection's real host:port (or $targetHost:port) through its SSH bastion.
      *
      * @return list<string>
      */
-    public function command(Connection $connection, int $localPort): array
+    public function command(Connection $connection, int $localPort, ?string $targetHost = null): array
     {
-        $command = [
+        $host = $targetHost ?? $connection->host;
+
+        return [
             'ssh', '-N',
-            '-L', "{$localPort}:{$connection->host}:{$connection->port}",
+            '-L', "{$localPort}:{$host}:{$connection->port}",
             '-p', (string) ($connection->sshPort ?? 22),
             '-o', 'StrictHostKeyChecking=accept-new',
             '-o', 'ExitOnForwardFailure=yes',
+            ...$this->destination($connection),
         ];
+    }
+
+    /**
+     * Builds the `ssh ... docker inspect` argv that prints the IPs of the
+     * connection's Docker container on the SSH host, space separated.
+     *
+     * @return list<string>
+     */
+    public function dockerInspectCommand(Connection $connection): array
+    {
+        // ssh joins the remote argv into one string for the remote POSIX shell,
+        // so quote for that shell (escapeshellarg() targets the local one).
+        $container = "'".str_replace("'", "'\\''", (string) $connection->dockerContainer)."'";
+
+        return [
+            'ssh',
+            '-p', (string) ($connection->sshPort ?? 22),
+            '-o', 'StrictHostKeyChecking=accept-new',
+            ...$this->destination($connection),
+            "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' {$container}",
+        ];
+    }
+
+    // ponytail: several networks → first IP wins; add a docker_network option if that picks the wrong one.
+    private function resolveContainerIp(Connection $connection): string
+    {
+        $process = new Process($this->dockerInspectCommand($connection));
+        $process->setTimeout(self::CONNECT_TIMEOUT_SECONDS * 2);
+        $process->run();
+
+        $ip = strtok(trim($process->getOutput()), ' ');
+
+        if (! $process->isSuccessful() || $ip === false) {
+            throw SshTunnelException::containerUnresolved(
+                (string) $connection->dockerContainer,
+                (string) $connection->sshHost,
+                $process->getErrorOutput(),
+            );
+        }
+
+        return $ip;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function destination(Connection $connection): array
+    {
+        $command = [];
 
         if ($connection->sshPrivateKey !== null) {
             $command[] = '-i';

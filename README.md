@@ -78,6 +78,19 @@ db connections:add prod --driver=pgsql --host=127.0.0.1 --port=5432 \
     --ssh-private-key=~/.ssh/id_ed25519
 ```
 
+If the database runs in a Docker container with no published port (Coolify,
+Dokploy, ...), add `--docker-container=<name>`. On every connect the CLI runs
+`docker inspect` over the same SSH connection to get the container's IP and
+forwards to it instead of `--host`, so the profile keeps working when the
+container is recreated. If the container is on several networks, the first IP
+is used. The SSH user must be allowed to run `docker` without sudo (for
+example, by being in the `docker` group).
+
+```bash
+db connections:add prod --driver=pgsql --port=5432 --username=app \
+    --ssh-host=vps.example.com --ssh-username=deploy --docker-container=my-postgres
+```
+
 ### Explore a database
 
 ```bash

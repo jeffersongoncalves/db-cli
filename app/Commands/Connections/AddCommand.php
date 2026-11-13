@@ -24,7 +24,8 @@ class AddCommand extends Command
         {--ssh-host= : SSH bastion host to tunnel the database connection through (leave empty to connect directly)}
         {--ssh-port= : SSH port (default 22)}
         {--ssh-username= : SSH username}
-        {--ssh-private-key= : Path to the SSH private key (leave empty to use ssh-agent/default identity)}';
+        {--ssh-private-key= : Path to the SSH private key (leave empty to use ssh-agent/default identity)}
+        {--docker-container= : Docker container running the database on the SSH host; its IP is resolved on every connect and used instead of --host}';
 
     protected $description = 'Save a named database connection profile';
 
@@ -43,6 +44,8 @@ class AddCommand extends Command
 
             return self::FAILURE;
         }
+
+        $dockerContainer = null;
 
         if ($driver === 'sqlite') {
             $database = $this->option('database') ?: text(label: 'Database file path', required: true);
@@ -78,11 +81,21 @@ class AddCommand extends Command
                     hint: 'Leave empty to use ssh-agent/default identity',
                 );
                 $sshPrivateKey = $sshPrivateKey ?: null;
+                $dockerContainer = $this->option('docker-container') ?: text(
+                    label: 'Docker container name',
+                    hint: 'Leave empty unless the database runs in a Docker container with no published port',
+                );
             } else {
                 $sshPort = null;
                 $sshUsername = null;
                 $sshPrivateKey = null;
             }
+        }
+
+        if ($dockerContainer === null && $this->option('docker-container')) {
+            $this->components->error('--docker-container requires an SSH tunnel (--ssh-host).');
+
+            return self::FAILURE;
         }
 
         $connections->save(new Connection(
@@ -97,6 +110,7 @@ class AddCommand extends Command
             sshPort: $sshPort,
             sshUsername: $sshUsername,
             sshPrivateKey: $sshPrivateKey,
+            dockerContainer: $dockerContainer ?: null,
         ));
 
         $this->components->info("Connection \"{$name}\" saved to {$connections->path()}");
