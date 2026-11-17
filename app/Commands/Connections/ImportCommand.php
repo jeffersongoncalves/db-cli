@@ -7,11 +7,12 @@ use App\Services\ConnectionService;
 use LaravelZero\Framework\Commands\Command;
 
 use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\password;
 
 class ImportCommand extends Command
 {
     protected $signature = 'connections:import
-        {url : Connection URL, e.g. mysql://user:pass@host:3306/database?name=alfa (quote it in the shell)}
+        {url? : Connection URL, e.g. mysql://user:pass@host:3306/database?name=alfa. Use single quotes: inside double quotes the shell expands "$..." in the password. Omit it to paste the URL at a prompt instead}
         {name? : Profile name (defaults to the URL\'s ?name= parameter)}
         {--force : Overwrite an existing profile without asking}';
 
@@ -21,7 +22,9 @@ class ImportCommand extends Command
     {
         try {
             $name = $this->argument('name');
-            $connection = Connection::fromUrl((string) $this->argument('url'), is_string($name) && $name !== '' ? $name : null);
+            // Pasted at a prompt, the URL never goes through the shell, so "$", "!" etc. in the password survive.
+            $url = (string) ($this->argument('url') ?? password(label: 'Connection URL', required: true));
+            $connection = Connection::fromUrl($url, is_string($name) && $name !== '' ? $name : null);
         } catch (\InvalidArgumentException $e) {
             $this->components->error($e->getMessage());
 

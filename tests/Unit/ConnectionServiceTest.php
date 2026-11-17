@@ -107,6 +107,10 @@ it('parses bracketed IPv6 hosts with and without a port', function (string $url,
     ['mysql://u:p@[::1]/app', 3306],
 ]);
 
+it('keeps a "$" in the password', function () {
+    expect(Connection::fromUrl('mysql://u:abc_$Thisxx28@h/db', 'x')->password)->toBe('abc_$Thisxx28');
+});
+
 it('keeps the explicit profile name "0"', function () {
     expect(Connection::fromUrl('mysql://u:p@h/db?name=x', '0')->name)->toBe('0');
 });
