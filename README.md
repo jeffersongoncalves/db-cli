@@ -64,6 +64,16 @@ db connections:list
 db connections:remove alfa
 ```
 
+To import a profile from a connection URL (e.g. TablePlus "Copy as URL"),
+quote it so the shell doesn't touch `&`/`#`. The profile name comes from the
+URL's `?name=` parameter unless you pass one; other parameters are ignored.
+Raw `#`, `@` and `/` in the password are fine.
+
+```bash
+db connections:import "mysql://user:pass@host:3306/app?name=BANCO%20-%20Nuvem"
+db connections:import "postgresql://app:secret@10.0.0.5:5432/app" prod --force
+```
+
 To connect through an SSH bastion (mysql/pgsql only), answer yes to
 "Connect through an SSH tunnel?" during `connections:add`, or pass the
 `--ssh-host`/`--ssh-port`/`--ssh-username`/`--ssh-private-key` options.

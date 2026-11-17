@@ -67,6 +67,60 @@ it('saves and reloads a connection profile with an SSH tunnel', function () {
         ->and($reloaded->sshPrivateKey)->toBe('/home/me/.ssh/id_ed25519');
 });
 
+it('parses a TablePlus-style connection URL with special characters in the password', function () {
+    $c = Connection::fromUrl('mysql://user:pass_#_qu@l/q@db.example.com:3307/app?statusColor=005392&env=production&name=BANCO%20-%20Nuvem&tLSMode=0');
+
+    expect($c->name)->toBe('BANCO - Nuvem')
+        ->and($c->driver)->toBe('mysql')
+        ->and($c->username)->toBe('user')
+        ->and($c->password)->toBe('pass_#_qu@l/q')
+        ->and($c->host)->toBe('db.example.com')
+        ->and($c->port)->toBe(3307)
+        ->and($c->database)->toBe('app');
+});
+
+it('fills connection URL defaults and lets the name argument win', function () {
+    $c = Connection::fromUrl('postgresql://app@10.0.0.5?name=ignored', 'prod');
+
+    expect($c->name)->toBe('prod')
+        ->and($c->driver)->toBe('pgsql')
+        ->and($c->port)->toBe(5432)
+        ->and($c->password)->toBeNull()
+        ->and($c->database)->toBe('');
+});
+
+it('keeps an "@" inside a query value out of the credentials', function () {
+    $c = Connection::fromUrl('mysql://user:p#ss@db.example.com:3306/app?name=ops@team&env=production');
+
+    expect($c->name)->toBe('ops@team')
+        ->and($c->password)->toBe('p#ss')
+        ->and($c->host)->toBe('db.example.com')
+        ->and($c->database)->toBe('app');
+});
+
+it('parses bracketed IPv6 hosts with and without a port', function (string $url, int $port) {
+    $c = Connection::fromUrl($url, 'v6');
+
+    expect($c->host)->toBe('::1')->and($c->port)->toBe($port)->and($c->database)->toBe('app');
+})->with([
+    ['mysql://u:p@[::1]:3307/app', 3307],
+    ['mysql://u:p@[::1]/app', 3306],
+]);
+
+it('keeps the explicit profile name "0"', function () {
+    expect(Connection::fromUrl('mysql://u:p@h/db?name=x', '0')->name)->toBe('0');
+});
+
+it('rejects connection URLs without a name, with a dotted name or an unknown driver', function (string $url, ?string $name) {
+    Connection::fromUrl($url, $name);
+})->with([
+    ['mysql://u:p@h/db', null],
+    ['mongodb://u:p@h/db?name=x', null],
+    ['not a url', 'x'],
+    ['mysql://u:p@h/db?name=a.b', null],
+    ['mysql://u:p@h/db', 'a.b'],
+])->throws(InvalidArgumentException::class);
+
 it('derives a connection targeting a different database on the same server', function () {
     $server = new Connection(name: 'server', driver: 'mysql', host: '127.0.0.1', port: 3306, username: 'root');
     $shop = $server->withDatabase('shop');

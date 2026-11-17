@@ -81,6 +81,55 @@ class Connection
     }
 
     /**
+     * Parses a connection URL such as the ones TablePlus exports:
+     * mysql://user:pass@host:port/database?name=Label&env=production.
+     * Parsed by hand instead of parse_url() because exported passwords often
+     * carry raw "#", "@" or "/" characters, which parse_url() splits on.
+     */
+    public static function fromUrl(string $url, ?string $name = null): self
+    {
+        // ponytail: plain URLs only; TablePlus "+ssh" URLs need their own parser.
+        // Lazy password + "@"-free host/path make the regex pick the first "@" after
+        // which a valid host/port/path/query follows, so "@" inside a query value
+        // stays in the query. Ceiling: a password containing "@host?" still misparses.
+        if (! preg_match('~^([a-z0-9]+)://(?:([^:@/]*)(?::(.*?))?@)?(\[[0-9a-f:.]+\]|[^:/?@\[\]]*)(?::(\d+))?(?:/([^?@]*))?(?:\?(.*))?$~is', trim($url), $m)) {
+            throw new \InvalidArgumentException('Invalid connection URL.');
+        }
+
+        $driver = match (strtolower($m[1])) {
+            'mysql', 'mariadb' => 'mysql',
+            'pgsql', 'postgres', 'postgresql' => 'pgsql',
+            default => throw new \InvalidArgumentException("Unsupported driver \"{$m[1]}\". Use mysql or pgsql (add sqlite profiles with connections:add)."),
+        };
+
+        parse_str($m[7] ?? '', $query);
+        if ($name === null || $name === '') {
+            $name = is_string($query['name'] ?? null) && $query['name'] !== '' ? $query['name'] : null;
+        }
+
+        if ($name === null) {
+            throw new \InvalidArgumentException('No profile name: pass one or add ?name= to the URL.');
+        }
+
+        // Profiles are stored under "connections.{name}" with dot notation.
+        if (str_contains($name, '.')) {
+            throw new \InvalidArgumentException("Invalid profile name \"{$name}\": dots are not allowed.");
+        }
+
+        $database = rawurldecode($m[6] ?? '');
+
+        return new self(
+            name: $name,
+            driver: $driver,
+            host: $m[4] !== '' ? trim($m[4], '[]') : '127.0.0.1',
+            port: ($m[5] ?? '') !== '' ? (int) $m[5] : ($driver === 'mysql' ? 3306 : 5432),
+            database: $database,
+            username: $m[2] !== '' ? rawurldecode($m[2]) : null,
+            password: $m[3] !== '' ? rawurldecode($m[3]) : null,
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array
