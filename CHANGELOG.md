@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-11-17
+
+### Bug Fixes
+
+- Harden connections:import URL parsing
+
+### CI/CD
+
+- Auto-merge dependabot github-actions minor/patch (#24)
+
+### Features
+
+- Add connections:import to save a profile from a connection URL
+
 ## [1.2.0] - 2026-11-13
 
 ### Features
