@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2026-11-17
+
+### Miscellaneous Tasks
+
+- Load the Pest PHPStan extension and document the raw ? password limit
+
+### Testing
+
+- Cover connections:import URL prompt and argument
+- Run feature tests in the testing env so prompts work without a TTY
+
 ## [1.3.1] - 2026-11-17
 
 ### Bug Fixes
