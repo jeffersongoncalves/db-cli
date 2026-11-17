@@ -89,9 +89,37 @@ it('fills connection URL defaults and lets the name argument win', function () {
         ->and($c->database)->toBe('');
 });
 
-it('rejects connection URLs without a name or with an unknown driver', function (string $url) {
-    Connection::fromUrl($url);
-})->with(['mysql://u:p@h/db', 'mongodb://u:p@h/db?name=x', 'not a url'])->throws(InvalidArgumentException::class);
+it('keeps an "@" inside a query value out of the credentials', function () {
+    $c = Connection::fromUrl('mysql://user:p#ss@db.example.com:3306/app?name=ops@team&env=production');
+
+    expect($c->name)->toBe('ops@team')
+        ->and($c->password)->toBe('p#ss')
+        ->and($c->host)->toBe('db.example.com')
+        ->and($c->database)->toBe('app');
+});
+
+it('parses bracketed IPv6 hosts with and without a port', function (string $url, int $port) {
+    $c = Connection::fromUrl($url, 'v6');
+
+    expect($c->host)->toBe('::1')->and($c->port)->toBe($port)->and($c->database)->toBe('app');
+})->with([
+    ['mysql://u:p@[::1]:3307/app', 3307],
+    ['mysql://u:p@[::1]/app', 3306],
+]);
+
+it('keeps the explicit profile name "0"', function () {
+    expect(Connection::fromUrl('mysql://u:p@h/db?name=x', '0')->name)->toBe('0');
+});
+
+it('rejects connection URLs without a name, with a dotted name or an unknown driver', function (string $url, ?string $name) {
+    Connection::fromUrl($url, $name);
+})->with([
+    ['mysql://u:p@h/db', null],
+    ['mongodb://u:p@h/db?name=x', null],
+    ['not a url', 'x'],
+    ['mysql://u:p@h/db?name=a.b', null],
+    ['mysql://u:p@h/db', 'a.b'],
+])->throws(InvalidArgumentException::class);
 
 it('derives a connection targeting a different database on the same server', function () {
     $server = new Connection(name: 'server', driver: 'mysql', host: '127.0.0.1', port: 3306, username: 'root');

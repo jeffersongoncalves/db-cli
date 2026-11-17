@@ -20,7 +20,8 @@ class ImportCommand extends Command
     public function handle(ConnectionService $connections): int
     {
         try {
-            $connection = Connection::fromUrl((string) $this->argument('url'), $this->argument('name') ?: null);
+            $name = $this->argument('name');
+            $connection = Connection::fromUrl((string) $this->argument('url'), is_string($name) && $name !== '' ? $name : null);
         } catch (\InvalidArgumentException $e) {
             $this->components->error($e->getMessage());
 
