@@ -33,6 +33,13 @@ class AddCommand extends Command
     {
         $name = $this->argument('name') ?: text(label: 'Profile name', placeholder: 'alfa', required: true);
 
+        // Profiles are stored under "connections.{name}" with dot notation.
+        if (str_contains($name, '.')) {
+            $this->components->error("Invalid profile name \"{$name}\": dots are not allowed.");
+
+            return self::FAILURE;
+        }
+
         $driver = $this->option('driver') ?: select(
             label: 'Driver',
             options: ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'],
