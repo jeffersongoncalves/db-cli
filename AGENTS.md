@@ -36,7 +36,9 @@ db connections:add NAME --driver=pgsql --host=127.0.0.1 --port=5432 --database=D
 db connections:add NAME --driver=sqlite --database=/path/to/file.sqlite
 
 # Import from a connection URL (mysql/mariadb/pgsql/postgres/postgresql); name from ?name= or 2nd arg
-# Single quotes: double quotes let the shell expand "$..." inside the password
+# Omit the URL to paste it at a masked prompt (keeps the password out of shell history)
+# If passed, use single quotes: double quotes let the shell expand "$..." inside the password
+db connections:import
 db connections:import 'mysql://USER:PASS@HOST:3306/DB?name=NAME' [NAME] --force
 
 # List
