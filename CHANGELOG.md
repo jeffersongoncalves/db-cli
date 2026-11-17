@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2026-11-17
+
+### Bug Fixes
+
+- Prompt for the URL in connections:import and reject dotted names in connections:add
+
 ## [1.3.0] - 2026-11-17
 
 ### Bug Fixes
