@@ -67,6 +67,32 @@ it('saves and reloads a connection profile with an SSH tunnel', function () {
         ->and($reloaded->sshPrivateKey)->toBe('/home/me/.ssh/id_ed25519');
 });
 
+it('parses a TablePlus-style connection URL with special characters in the password', function () {
+    $c = Connection::fromUrl('mysql://user:pass_#_qu@l/q@db.example.com:3307/app?statusColor=005392&env=production&name=BANCO%20-%20Nuvem&tLSMode=0');
+
+    expect($c->name)->toBe('BANCO - Nuvem')
+        ->and($c->driver)->toBe('mysql')
+        ->and($c->username)->toBe('user')
+        ->and($c->password)->toBe('pass_#_qu@l/q')
+        ->and($c->host)->toBe('db.example.com')
+        ->and($c->port)->toBe(3307)
+        ->and($c->database)->toBe('app');
+});
+
+it('fills connection URL defaults and lets the name argument win', function () {
+    $c = Connection::fromUrl('postgresql://app@10.0.0.5?name=ignored', 'prod');
+
+    expect($c->name)->toBe('prod')
+        ->and($c->driver)->toBe('pgsql')
+        ->and($c->port)->toBe(5432)
+        ->and($c->password)->toBeNull()
+        ->and($c->database)->toBe('');
+});
+
+it('rejects connection URLs without a name or with an unknown driver', function (string $url) {
+    Connection::fromUrl($url);
+})->with(['mysql://u:p@h/db', 'mongodb://u:p@h/db?name=x', 'not a url'])->throws(InvalidArgumentException::class);
+
 it('derives a connection targeting a different database on the same server', function () {
     $server = new Connection(name: 'server', driver: 'mysql', host: '127.0.0.1', port: 3306, username: 'root');
     $shop = $server->withDatabase('shop');
