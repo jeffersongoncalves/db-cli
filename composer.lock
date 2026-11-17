@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24c05a3f755ddaf59bd3614f2ccf5dbf",
+    "content-hash": "d10a38df8e125cfc1ee8b7ef25a7edf5",
     "packages": [],
     "packages-dev": [
         {
@@ -3076,6 +3076,71 @@
                 "source": "https://github.com/mockery/mockery"
             },
             "time": "2026-08-19T19:37:52+00:00"
+        },
+        {
+            "name": "mrpunyapal/peststan",
+            "version": "0.2.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MrPunyapal/PestStan.git",
+                "reference": "a18bf927fcff6dbb5ddb749e20b294486587b35c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MrPunyapal/PestStan/zipball/a18bf927fcff6dbb5ddb749e20b294486587b35c",
+                "reference": "a18bf927fcff6dbb5ddb749e20b294486587b35c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2",
+                "phpstan/phpstan": "^2.0"
+            },
+            "require-dev": {
+                "laravel/pao": "^1.0",
+                "laravel/pint": "^1.18",
+                "mrpunyapal/rector-pest": "^0.2.0",
+                "pestphp/pest": "^3.0 || ^4.0 || ^5.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "rector/rector": "^2.0"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PestStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan extension for Pest PHP testing framework",
+            "keywords": [
+                "PHPStan",
+                "pest",
+                "static-analysis",
+                "testing"
+            ],
+            "support": {
+                "issues": "https://github.com/MrPunyapal/PestStan/issues",
+                "source": "https://github.com/MrPunyapal/PestStan/tree/0.2.12"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/mrpunyapal",
+                    "type": "github"
+                }
+            ],
+            "abandoned": "https://github.com/pestphp/pest-plugin-phpstan",
+            "time": "2026-07-17T19:10:40+00:00",
+            "published-time": "2026-07-17T19:11:08+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -8907,5 +8972,5 @@
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

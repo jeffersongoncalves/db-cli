@@ -71,7 +71,8 @@ You can also pass the URL as an argument, wrapped in **single quotes**: inside
 double quotes the shell expands `$...` in the password (`pass_$Abc1` becomes
 `pass_`). The profile name comes from the URL's `?name=` parameter unless you
 pass one; other parameters are ignored. Raw `#`, `@`, `/` and `$` in the
-password are fine.
+password are fine, but a raw `?` after a raw `@` (e.g. `a@b?c`) is not:
+percent-encode it as `%3F`.
 
 ```bash
 db connections:import            # paste the URL at the prompt (recommended)
