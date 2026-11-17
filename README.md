@@ -65,16 +65,19 @@ db connections:remove alfa
 ```
 
 To import a profile from a connection URL (e.g. TablePlus "Copy as URL"),
-wrap it in **single quotes** — inside double quotes the shell expands `$...`
-in the password (`pass_$Abc1` becomes `pass_`). Or run it without the URL and
-paste it at the prompt, which skips the shell entirely. The profile name comes
-from the URL's `?name=` parameter unless you pass one; other parameters are
-ignored. Raw `#`, `@`, `/` and `$` in the password are fine.
+run `connections:import` without arguments and paste the URL at the masked
+prompt, which keeps the password out of your shell history and process list.
+You can also pass the URL as an argument, wrapped in **single quotes**: inside
+double quotes the shell expands `$...` in the password (`pass_$Abc1` becomes
+`pass_`). The profile name comes from the URL's `?name=` parameter unless you
+pass one; other parameters are ignored. Raw `#`, `@`, `/` and `$` in the
+password are fine, but a raw `?` after a raw `@` (e.g. `a@b?c`) is not:
+percent-encode it as `%3F`.
 
 ```bash
+db connections:import            # paste the URL at the prompt (recommended)
 db connections:import 'mysql://user:pa$$@host:3306/app?name=BANCO%20-%20Nuvem'
 db connections:import 'postgresql://app:secret@10.0.0.5:5432/app' prod --force
-db connections:import            # paste the URL at the prompt
 ```
 
 To connect through an SSH bastion (mysql/pgsql only), answer yes to

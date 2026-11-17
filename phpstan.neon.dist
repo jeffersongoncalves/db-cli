@@ -1,9 +1,9 @@
+includes:
+    # Pest 4 PHPStan extension: binds $this in tests to the uses()->in() TestCase.
+    - vendor/mrpunyapal/peststan/extension.neon
+
 parameters:
     level: 5
     paths:
         - app
         - tests
-    ignoreErrors:
-        -
-            identifier: property.notFound
-            path: tests/*
